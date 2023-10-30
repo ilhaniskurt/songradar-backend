@@ -4,6 +4,13 @@
 
 SongRadar is a song recommendation service that helps users discover music according to their tastes. This backend service is built using FastAPI and SQLite.
 
+## Features
+
+- **JWT Authorization**: Uses JSON Web Tokens (JWT) for secure authorization, included as a bearer token in the header.
+- **Password Hashing**: All user passwords are securely hashed before being stored in the SQLite database.
+- **Unique User Validation**: Denies the creation of users with existing usernames or emails.
+- **Email Validation**: Checks for valid email format during the sign-up process.
+
 ## Technology Stack
 
 - Python
@@ -13,7 +20,7 @@ SongRadar is a song recommendation service that helps users discover music accor
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.10+
 - pip
 - virtualenv
 
@@ -67,37 +74,63 @@ SongRadar is a song recommendation service that helps users discover music accor
 
 ### Register a new user
 
-- **URL**: `/api/register`
+- **URL**: `/auth/sign_up`
 - **Method**: `POST`
 - **Body**:
   ```json
   {
-    "username": "username",
-    "password": "password"
+    "username": "string",
+    "email": "string",
+    "password": "string"
   }
   ```
 - **Response**:
   ```json
   {
-    "user_id": 1,
-    "username": "username"
+    "username": "string",
+    "email": "string",
+    "id": 0
   }
   ```
 
-### Recommend songs
+### Sign in an user (Get auth token)
 
-- **URL**: `/api/recommend`
+- **URL**: `/auth/sign_in`
 - **Method**: `POST`
 - **Body**:
   ```json
   {
-    "user_id": 1,
-    "song_ids": [1, 2, 3]
+    "username": "string",
+    "password": "string"
   }
   ```
 - **Response**:
+
   ```json
   {
-    "recommended_songs": [4, 5, 6]
+    "access_token": "string",
+    "token_type": "string"
+  }
+  ```
+
+- **Instructions**: To use the returned access token, include it in the `Authorization` header with the `Bearer` keyword when making requests to endpoints that require authorization. For example:
+  ```bash
+  curl -X 'GET' \
+    'http://127.0.0.1:8000/auth/me' \
+    -H 'accept: application/json' \
+    -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNjk4NjgyMjE0fQ.dNvWxR8BG21vAaCnHd5LNX1_NoKpcjamNB_SHf1Y1NM'
+  ```
+
+### Get the current user (Requires Bearer Token in Header)
+
+- **URL**: `/auth/me`
+- **Method**: `GET`
+- **Headers**: Authorization: `Bearer {access_token_here}`
+- **Response**:
+  ```json
+  {
+    "username": "string",
+    "email": "string",
+    "id": 1
   }
   ```

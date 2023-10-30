@@ -105,14 +105,12 @@ SongRadar is a song recommendation service that helps users discover music accor
   }
   ```
 - **Response**:
-
   ```json
   {
     "access_token": "string",
     "token_type": "string"
   }
   ```
-
 - **Instructions**: To use the returned access token, include it in the `Authorization` header with the `Bearer` keyword when making requests to endpoints that require authorization. For example:
   ```bash
   curl -X 'GET' \

@@ -28,9 +28,11 @@ async def sign_in(
 
 @router.post("/sign_up", response_model=schemas.User)
 def sign_up(user: schemas.UserCreate, db: Session = Depends(dependencies.get_db)):
+    # Check email uniqueness
     db_user = crud.get_user_by_email(db, user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    # Check username uniqueness
     db_user = crud.get_user_by_username(db, user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username is taken")

@@ -11,6 +11,7 @@ SongRadar is a song recommendation service that helps users discover music accor
 - **Unique User Validation**: Denies the creation of users with existing usernames or emails.
 - **Email Validation**: Checks for valid email format during the sign-up process.
 - **Strong Password Policy**: Passwords must meet the following conditions:
+
   - Minimum length of 8 characters
   - At least one uppercase letter
   - At least one lowercase letter

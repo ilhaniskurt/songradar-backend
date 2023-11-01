@@ -22,6 +22,22 @@ class UserCreate(UserBase):
             )
         return v
 
+    @field_validator("username")
+    @classmethod
+    def check_username(cls, v: str):
+        details = []
+        if len(v) < 6:
+            details.append("Username must be at least 6 characters long.")
+        if len(v) > 18:
+            details.append("Username must not be more than 18 characters long.")
+        if not v.isalnum():
+            details.append("Username can only contain alphanumeric characters.")
+        if v[0].isdigit():
+            details.append("Username cannot start with a number.")
+        if details:
+            raise HTTPException(status_code=400, detail=details)
+        return v
+
     @field_validator("email")
     @classmethod
     def check_email(cls, v: str):

@@ -9,6 +9,13 @@ SongRadar is a song recommendation service that helps users discover music accor
 - **JWT Authorization**: Uses JSON Web Tokens (JWT) for secure authorization, included as a bearer token in the header.
 - **Password Hashing**: All user passwords are securely hashed before being stored in the SQLite database.
 - **Unique User Validation**: Denies the creation of users with existing usernames or emails.
+- **Username Requirements**: Usernames must meet the following conditions:
+
+  - Must be at least 6 characters long
+  - Must not be more than 18 characters long
+  - Must only contain alphanumeric characters (letters and numbers)
+  - Must not begin with a number
+
 - **Email Validation**: Checks for valid email format during the sign-up process.
 - **Strong Password Policy**: Passwords must meet the following conditions:
 

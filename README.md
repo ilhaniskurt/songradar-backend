@@ -91,6 +91,13 @@ SongRadar is a song recommendation service that helps users discover music accor
 
 - **URL**: `/auth/sign_up`
 - **Method**: `POST`
+- **Headers**:
+  ```json
+  {
+    "accept": "application/json",
+    "Content-Type": "application/json"
+  }
+  ```
 - **Body**:
   ```json
   {
@@ -112,6 +119,12 @@ SongRadar is a song recommendation service that helps users discover music accor
 
 - **URL**: `/auth/sign_in`
 - **Method**: `POST`
+- **Headers**:
+  ```json
+  {
+    "accept": "application/json"
+  }
+  ```
 - **Body**:
   ```json
   {
@@ -138,7 +151,13 @@ SongRadar is a song recommendation service that helps users discover music accor
 
 - **URL**: `/auth/me`
 - **Method**: `GET`
-- **Headers**: Authorization: `Bearer {access_token_here}`
+- **Headers**:
+  ```json
+  {
+    "accept": "application/json"
+    "Authorization": "Bearer {access_token}"
+  }
+  ```
 - **Response**:
   ```json
   {

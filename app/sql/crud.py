@@ -41,39 +41,23 @@ def get_albums(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_album(db: Session, album: schemas.AlbumCreate):
-    db_album = models.Album(**album.model_dump(exclude="performers"))
-    for performer in album.performers:
-        db_album.performers.append(models.Performer(name=performer))
+    db_album = models.Album(**album.model_dump())
     db.add(db_album)
     db.commit()
     db.refresh(db_album)
     return db_album
 
 
-# Performer CRUD
+# Song CRUD
 
 
-def get_performers(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Performer).offset(skip).limit(limit).all()
+def get_songs(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.Song).offset(skip).limit(limit).all()
 
 
-def get_performer(db: Session, performer_id: int):
-    return (
-        db.query(models.Performer).filter(models.Performer.id == performer_id).first()
-    )
-
-
-def get_performer_by_name(db: Session, performer_name: str):
-    return (
-        db.query(models.Performer)
-        .filter(models.Performer.name == performer_name)
-        .first()
-    )
-
-
-def create_performer(db: Session, performer: schemas.PerformerCreate):
-    db_performer = models.Performer(**performer.model_dump())
-    db.add(db_performer)
+def create_song(db: Session, song: schemas.SongCreate):
+    db_song = models.Song(**song.model_dump())
+    db.add(db_song)
     db.commit()
-    db.refresh(db_performer)
-    return db_performer
+    db.refresh(db_song)
+    return db_song

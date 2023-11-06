@@ -75,33 +75,37 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class PerformerBase(BaseModel):
-    name: str
+class SongBase(BaseModel):
+    title: str
+    year: int
+    genre: str
+    performers: str
+    album_id: int
 
 
-class PerformerCreate(PerformerBase):
+class SongCreate(SongBase):
     pass
 
 
-class Performer(PerformerBase):
+class Song(SongBase):
     id: int
-    albums: list = []
-    songs: list = []
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AlbumBase(BaseModel):
     title: str
     year: int
     genre: str
+    performers: str
 
 
 class AlbumCreate(AlbumBase):
-    performers: list[str]
+    pass
 
 
 class Album(AlbumBase):
     id: int
-    songs: list = []
-    performers: list[Performer] = []
+    songs: list[Song] = []
 
     model_config = ConfigDict(from_attributes=True)

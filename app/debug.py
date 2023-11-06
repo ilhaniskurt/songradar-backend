@@ -51,27 +51,17 @@ def create_album(
     return crud.create_album(db, album)
 
 
-# Performer Debug
+# Song Debug
 
 
-@router.get("/performer", response_model=list[schemas.Performer])
-def read_performers(
+@router.get("/songs", response_model=list[schemas.Song])
+def read_songs(
     skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db)
 ):
-    performers = crud.get_performers(db, skip=skip, limit=limit)
-    return performers
+    songs = crud.get_songs(db, skip=skip, limit=limit)
+    return songs
 
 
-@router.get("/performer/{performer_id}", response_model=schemas.Performer)
-def read_performer_by_id(performer_id: int, db: Session = Depends(dependencies.get_db)):
-    db_performer = crud.get_performer(db, performer_id)
-    if db_performer is None:
-        raise HTTPException(status_code=404, detail="Performer not found")
-    return db_performer
-
-
-@router.post("/performer", response_model=schemas.Performer)
-def create_performer(
-    performer: schemas.PerformerCreate, db: Session = Depends(dependencies.get_db)
-):
-    return crud.create_performer(db, performer)
+@router.post("/songs", response_model=schemas.Song)
+def create_song(song: schemas.SongCreate, db: Session = Depends(dependencies.get_db)):
+    return crud.create_song(db, song)

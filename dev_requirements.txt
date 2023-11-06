@@ -1,0 +1,11 @@
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+pydantic
+pydantic-settings
+email-validator
+fastapi
+uvicorn[standart]
+sqlalchemy
+httpx
+pytest

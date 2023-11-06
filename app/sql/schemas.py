@@ -2,7 +2,7 @@ import re
 
 from email_validator import EmailNotValidError, validate_email
 from fastapi import HTTPException
-from pydantic import BaseModel, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator
 
 
 class UserBase(BaseModel):
@@ -72,5 +72,36 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PerformerBase(BaseModel):
+    name: str
+
+
+class PerformerCreate(PerformerBase):
+    pass
+
+
+class Performer(PerformerBase):
+    id: int
+    albums: list = []
+    songs: list = []
+
+
+class AlbumBase(BaseModel):
+    title: str
+    year: int
+    genre: str
+
+
+class AlbumCreate(AlbumBase):
+    performers: list[str]
+
+
+class Album(AlbumBase):
+    id: int
+    songs: list = []
+    performers: list[Performer] = []
+
+    model_config = ConfigDict(from_attributes=True)

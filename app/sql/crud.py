@@ -48,6 +48,13 @@ def create_album(db: Session, album: schemas.AlbumCreate):
     return db_album
 
 
+def delete_album(db: Session, album_id: int):
+    db_album = db.query(models.Album).filter(models.Album.id == album_id).first()
+    db.delete(db_album)
+    db.commit()
+    return db_album
+
+
 # Song CRUD
 
 

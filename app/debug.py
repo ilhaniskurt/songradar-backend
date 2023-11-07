@@ -51,6 +51,11 @@ def create_album(
     return crud.create_album(db, album)
 
 
+@router.delete("/album", response_model=schemas.Album)
+def delete_album(album_id: int, db: Session = Depends(dependencies.get_db)):
+    return crud.delete_album(db, album_id)
+
+
 # Song Debug
 
 

@@ -1,5 +1,5 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, Column, Float, Integer, String
+from sqlalchemy.inspection import inspect
 
 from .database import Base
 
@@ -13,26 +13,65 @@ class User(Base):
     hashed_password = Column(String)
 
 
-class Album(Base):
-    __tablename__ = "albums"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    performers = Column(String, index=True)
-    year = Column(Integer, index=True)
-    genre = Column(String, index=True)
-
-    songs = relationship("Song", back_populates="album", cascade="all, delete-orphan")
-
-
 class Song(Base):
     __tablename__ = "songs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True)
-    performers = Column(String, index=True)
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, index=True)
+    album = Column(String, index=True)
+    album_id = Column(String, index=True)
+    artists = Column(String, index=True)
+    artist_ids = Column(String, index=True)
+    track_number = Column(Integer)
+    disc_number = Column(Integer)
+    explicit = Column(Boolean)
+    danceability = Column(Float)
+    energy = Column(Float)
+    key = Column(Integer)
+    loudness = Column(Float)
+    mode = Column(Integer)
+    speechiness = Column(Float)
+    acousticness = Column(Float)
+    instrumentalness = Column(Float)
+    liveness = Column(Float)
+    valence = Column(Float)
+    tempo = Column(Float)
+    duration_ms = Column(Integer)
+    time_signature = Column(Integer)
     year = Column(Integer, index=True)
-    genre = Column(String, index=True)
+    month = Column(Integer, index=True)
+    day = Column(Integer, index=True)
 
-    album_id = Column(Integer, ForeignKey("albums.id"))
-    album = relationship("Album", back_populates="songs")
+    owner_id = Column(Integer, index=True)
+
+
+class Album(Base):
+    __tablename__ = "albums"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, index=True)
+    artists = Column(String, index=True)
+    artist_ids = Column(String, index=True)
+    number_of_tracks = Column(Integer)
+    explicit = Column(Boolean)
+    danceability = Column(Float)
+    energy = Column(Float)
+    key = Column(Integer)
+    loudness = Column(Float)
+    mode = Column(Integer)
+    speechiness = Column(Float)
+    acousticness = Column(Float)
+    instrumentalness = Column(Float)
+    liveness = Column(Float)
+    valence = Column(Float)
+    tempo = Column(Float)
+    duration_ms = Column(Integer)
+    time_signature = Column(Integer)
+    year = Column(Integer, index=True)
+    month = Column(Integer, index=True)
+    day = Column(Integer, index=True)
+
+    owner_id = Column(Integer, index=True)
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}

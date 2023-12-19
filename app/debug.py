@@ -36,37 +36,16 @@ def read_user_by_id(user_id: int, db: Session = Depends(dependencies.get_db)):
 # Album Debug
 
 
-@router.get("/albums", response_model=list[schemas.Album])
-def read_albums(
-    skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db)
-):
-    albums = crud.get_albums(db, skip=skip, limit=limit)
-    return albums
-
-
-@router.post("/album", response_model=schemas.Album)
+@router.post("/albums", response_model=schemas.AlbumBase)
 def create_album(
     album: schemas.AlbumCreate, db: Session = Depends(dependencies.get_db)
 ):
     return crud.create_album(db, album)
 
 
-@router.delete("/album", response_model=schemas.Album)
-def delete_album(album_id: int, db: Session = Depends(dependencies.get_db)):
-    return crud.delete_album(db, album_id)
-
-
 # Song Debug
 
 
-@router.get("/songs", response_model=list[schemas.Song])
-def read_songs(
-    skip: int = 0, limit: int = 100, db: Session = Depends(dependencies.get_db)
-):
-    songs = crud.get_songs(db, skip=skip, limit=limit)
-    return songs
-
-
-@router.post("/songs", response_model=schemas.Song)
+@router.post("/songs", response_model=schemas.SongBase)
 def create_song(song: schemas.SongCreate, db: Session = Depends(dependencies.get_db)):
     return crud.create_song(db, song)

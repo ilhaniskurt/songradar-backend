@@ -76,11 +76,33 @@ class User(UserBase):
 
 
 class SongBase(BaseModel):
-    title: str
+    id: str
+    name: str
+    album: str
+    album_id: str
+    artists: str
+    artist_ids: str
+    track_number: int
+    disc_number: int
+    explicit: bool
+    danceability: float
+    energy: float
+    key: int
+    loudness: float
+    mode: int
+    speechiness: float
+    acousticness: float
+    instrumentalness: float
+    liveness: float
+    valence: float
+    tempo: float
+    duration_ms: int
+    time_signature: int
     year: int
-    genre: str
-    performers: str
-    album_id: int
+    month: int
+    day: int
+
+    owner_id: int = 0
 
 
 class SongCreate(SongBase):
@@ -88,16 +110,34 @@ class SongCreate(SongBase):
 
 
 class Song(SongBase):
-    id: int
-
     model_config = ConfigDict(from_attributes=True)
 
 
 class AlbumBase(BaseModel):
-    title: str
+    id: str
+    name: str
+    artists: str
+    artist_ids: str
+    number_of_tracks: int
+    explicit: bool
+    danceability: float
+    energy: float
+    key: int
+    loudness: float
+    mode: int
+    speechiness: float
+    acousticness: float
+    instrumentalness: float
+    liveness: float
+    valence: float
+    tempo: float
+    duration_ms: int
+    time_signature: int
     year: int
-    genre: str
-    performers: str
+    month: int
+    day: int
+
+    owner_id: int = 0
 
 
 class AlbumCreate(AlbumBase):
@@ -105,7 +145,6 @@ class AlbumCreate(AlbumBase):
 
 
 class Album(AlbumBase):
-    id: int
-    songs: list[Song] = []
+    tracks: list[Song]
 
     model_config = ConfigDict(from_attributes=True)

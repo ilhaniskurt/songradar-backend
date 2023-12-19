@@ -33,33 +33,39 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
-# Album CRUD
-
-
-def get_albums(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Album).offset(skip).limit(limit).all()
-
-
-def create_album(db: Session, album: schemas.AlbumCreate):
-    db_album = models.Album(**album.model_dump())
-    db.add(db_album)
-    db.commit()
-    db.refresh(db_album)
-    return db_album
-
-
-def delete_album(db: Session, album_id: int):
-    db_album = db.query(models.Album).filter(models.Album.id == album_id).first()
-    db.delete(db_album)
-    db.commit()
-    return db_album
-
-
 # Song CRUD
 
 
-def get_songs(db: Session, skip: int = 0, limit: int = 100):
+def get_songs(db: Session, skip: int, limit: int):
     return db.query(models.Song).offset(skip).limit(limit).all()
+
+
+def get_song_by_id(db: Session, id: str):
+    return db.query(models.Song).filter(models.Song.id == id).first()
+
+
+def get_songs_by_album_id(db: Session, album_id: str):
+    return db.query(models.Song).filter(models.Song.album_id == album_id).all()
+
+
+def search_songs_by_name(db: Session, name: str, skip: int, limit: int):
+    return (
+        db.query(models.Song)
+        .filter(models.Song.name.ilike(f"%{name}%"))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def search_songs_by_artist(db: Session, artist: str, skip: int, limit: int):
+    return (
+        db.query(models.Song)
+        .filter(models.Song.artists.ilike(f"%{artist}%"))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 def create_song(db: Session, song: schemas.SongCreate):
@@ -68,3 +74,50 @@ def create_song(db: Session, song: schemas.SongCreate):
     db.commit()
     db.refresh(db_song)
     return db_song
+
+
+def get_song_count(db: Session):
+    return db.query(models.Song).count()
+
+
+# Album CRUD
+
+
+def get_albums(db: Session, skip: int, limit: int):
+    return db.query(models.Album).offset(skip).limit(limit).all()
+
+
+def get_album_by_id(db: Session, id: str):
+    return db.query(models.Album).filter(models.Album.id == id).first()
+
+
+def search_albums_by_name(db: Session, name: str, skip: int, limit: int):
+    return (
+        db.query(models.Album)
+        .filter(models.Album.name.ilike(f"%{name}%"))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def search_albums_by_artist(db: Session, artist: str, skip: int, limit: int):
+    return (
+        db.query(models.Album)
+        .filter(models.Album.artists.ilike(f"%{artist}%"))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def create_album(db: Session, album: schemas.AlbumCreate):
+    db_song = models.Album(**album.model_dump())
+    db.add(db_song)
+    db.commit()
+    db.refresh(db_song)
+    return db_song
+
+
+def get_album_count(db: Session):
+    return db.query(models.Album).count()

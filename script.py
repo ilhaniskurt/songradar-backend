@@ -10,10 +10,13 @@ headers = {
 }
 
 
-def get_songs(filename: str) -> pd.DataFrame:
-    print("Reading csv..")
+def get_songs(filenames: list) -> pd.DataFrame:
+    print("Reading csvs..")
     na = ["", "NaN"]
-    df = pd.read_csv(filename, na_values=na, keep_default_na=False)
+    df = pd.concat(
+        (pd.read_csv(file, na_values=na, keep_default_na=False) for file in filenames),
+        ignore_index=True,
+    )
     print("Reading csv finished!")
     return df
 
@@ -57,7 +60,7 @@ def create_songs(df: pd.DataFrame, start: int = 0) -> None:
     print("Done!")
 
 
-def songs_to_albums(df: pd.DataFrame, start: int = 0):
+def create_albums(df: pd.DataFrame, start: int = 0):
     print("Sending requests to api to create songs..")
     unique_album_ids = df["album_id"].unique().tolist()
 
@@ -113,7 +116,8 @@ def songs_to_albums(df: pd.DataFrame, start: int = 0):
 
 
 if __name__ == "__main__":
-    pd.set_option("display.max_columns", None)
-    df = get_songs("songs_updated.csv")
+    csv_files = ["songs_0.csv", "songs_1.csv", "songs_2.csv", "songs_3.csv"]
+    # pd.set_option("display.max_columns", None)
+    df = get_songs(csv_files)
     create_songs(df)
-    songs_to_albums(df)
+    create_albums(df)

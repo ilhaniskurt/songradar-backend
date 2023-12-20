@@ -35,14 +35,14 @@ def search_songs_by_artist(
     return crud.search_songs_by_artist(db, artist, skip, limit)
 
 
+@router.get("/count")
+def song_count(db: Session = Depends(dependencies.get_db)):
+    return crud.get_song_count(db)
+
+
 @router.get("/{id}", response_model=schemas.Song)
 def get_song_by_id(id: str, db: Session = Depends(dependencies.get_db)):
     song = crud.get_song_by_id(db, id)
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
     return song
-
-
-@router.get("/count")
-def song_count(db: Session = Depends(dependencies.get_db)):
-    return crud.get_song_count(db)

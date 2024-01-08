@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from ..utils import security
@@ -81,6 +82,30 @@ def search_songs_by_artist(db: Session, artist: str, skip: int, limit: int):
     )
 
 
+def create_song(db: Session, song: schemas.SongCreate, owner_id: int):
+    q = db.query(models.Album).filter(models.Album.id == song.album_id).first()
+
+    if not q:
+        raise HTTPException(
+            status_code=404, detail=f"Invalid album id: {song.album_id}"
+        )
+
+    if q.owner_id != owner_id:
+        raise HTTPException(
+            status_code=404, detail="Cannot add song to an album you do not own"
+        )
+
+    q.number_of_tracks += 1
+    db_song = models.Song(
+        **song.model_dump(), id=str(uuid4()), owner_id=owner_id, album=q.name
+    )
+    db.add(db_song)
+    db.commit()
+    db.refresh(db_song)
+    return db_song
+
+
+# Debug
 def create_song_debug(db: Session, song: schemas.SongDebug):
     db_song = models.Song(**song.model_dump())
     db.add(db_song)

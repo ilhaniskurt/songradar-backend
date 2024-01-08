@@ -1,10 +1,21 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.sql import crud, schemas
+from app.sql import crud, models, schemas
 from app.utils import dependencies
 
 router = APIRouter(prefix="/songs", tags=["songs"])
+
+
+@router.post("/", response_model=schemas.Song)
+def create_song(
+    current_user: Annotated[models.User, Depends(dependencies.get_current_user)],
+    song: schemas.SongCreate,
+    db: Session = Depends(dependencies.get_db),
+):
+    return crud.create_song(db, song, current_user.id)
 
 
 @router.get("/", response_model=list[schemas.Song])
@@ -15,7 +26,7 @@ def read_songs(
     return songs
 
 
-@router.get("/", response_model=list[schemas.Song])
+@router.get("/recent", response_model=list[schemas.Song])
 def read_songs_recent(
     skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
 ):

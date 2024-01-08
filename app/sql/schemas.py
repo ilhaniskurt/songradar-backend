@@ -76,99 +76,62 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SongDebug(BaseModel):
-    id: str
-    name: str
-    album: str
-    album_id: str
-    artists: str
-    artist_ids: str
-    track_number: int
-    disc_number: int
-    explicit: bool
-    danceability: float
-    energy: float
-    key: int
-    loudness: float
-    mode: int
-    speechiness: float
-    acousticness: float
-    instrumentalness: float
-    liveness: float
-    valence: float
-    tempo: float
-    duration_ms: int
-    time_signature: int
-    year: int
-    month: int
-    day: int
-
-    owner_id: int = 0
-
-
 class SongBase(BaseModel):
-    id: str
     name: str
-    album: str
     album_id: str
     artists: str
-    artist_ids: str
-    track_number: int
-    disc_number: int
-    explicit: bool
-    danceability: float
-    energy: float
-    key: int
-    loudness: float
-    mode: int
-    speechiness: float
-    acousticness: float
-    instrumentalness: float
-    liveness: float
-    valence: float
-    tempo: float
-    duration_ms: int
-    time_signature: int
     year: int
     month: int
     day: int
-
-    owner_id: int = 0
 
 
 class SongCreate(SongBase):
-    pass
+    @validator("day")
+    def validate_date(cls, v, values):
+        year = values["year"]
+        month = values["month"]
+        day = v
+        try:
+            date = datetime(year, month, day)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail="Invalid date: " + str(e))
+
+        if date > datetime.now():
+            raise HTTPException(
+                status_code=400,
+                detail="Date cannot be in the future: " + str(date.date()),
+            )
+        if date < datetime(1900, 1, 1):
+            raise HTTPException(
+                status_code=400,
+                detail="Date cannot be before January 1, 1900: " + str(date.date()),
+            )
+        return v
 
 
 class Song(SongBase):
-    model_config = ConfigDict(from_attributes=True)
-
-
-class AlbumDebug(BaseModel):
     id: str
-    name: str
-    artists: str
-    artist_ids: str
-    number_of_tracks: int
-    explicit: bool
-    danceability: float
-    energy: float
-    key: int
-    loudness: float
-    mode: int
-    speechiness: float
-    acousticness: float
-    instrumentalness: float
-    liveness: float
-    valence: float
-    tempo: float
-    duration_ms: int
-    time_signature: int
-    year: int
-    month: int
-    day: int
+    album: str
+    owner_id: int
 
-    owner_id: int = 0
+    # Nullable
+    artist_ids: str | None
+    explicit: bool | None
+    danceability: float | None
+    energy: float | None
+    key: int | None
+    loudness: float | None
+    mode: int | None
+    speechiness: float | None
+    acousticness: float | None
+    instrumentalness: float | None
+    liveness: float | None
+    valence: float | None
+    tempo: float | None
+    duration_ms: int | None
+    time_signature: int | None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AlbumBase(BaseModel):
@@ -204,10 +167,10 @@ class AlbumCreate(AlbumBase):
 
 
 class Album(AlbumBase):
-    id: str = 0
-    owner_id: int = 0
+    id: str
+    owner_id: int
 
-    number_of_tracks: int = 0
+    number_of_tracks: int
 
     # Nullable
     artist_ids: str | None
@@ -231,3 +194,63 @@ class Album(AlbumBase):
 
 class AlbumPopulated(Album):
     tracks: list[Song]
+
+
+# Debug
+
+
+class SongDebug(BaseModel):
+    id: str
+    name: str
+    album: str
+    album_id: str
+    artists: str
+    artist_ids: str
+    track_number: int
+    disc_number: int
+    explicit: bool
+    danceability: float
+    energy: float
+    key: int
+    loudness: float
+    mode: int
+    speechiness: float
+    acousticness: float
+    instrumentalness: float
+    liveness: float
+    valence: float
+    tempo: float
+    duration_ms: int
+    time_signature: int
+    year: int
+    month: int
+    day: int
+
+    owner_id: int = 0
+
+
+class AlbumDebug(BaseModel):
+    id: str
+    name: str
+    artists: str
+    artist_ids: str
+    number_of_tracks: int
+    explicit: bool
+    danceability: float
+    energy: float
+    key: int
+    loudness: float
+    mode: int
+    speechiness: float
+    acousticness: float
+    instrumentalness: float
+    liveness: float
+    valence: float
+    tempo: float
+    duration_ms: int
+    time_signature: int
+    year: int
+    month: int
+    day: int
+
+    owner_id: int = 0

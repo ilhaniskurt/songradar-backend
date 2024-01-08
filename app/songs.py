@@ -28,11 +28,22 @@ def create_song(
     return crud.create_song(db, song, current_user.id)
 
 
+@router.get("/user", response_model=list[schemas.Song])
+def read_user_songs(
+    current_user: Annotated[models.User, Depends(dependencies.get_current_user)],
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(dependencies.get_db),
+):
+    song = crud.get_songs_by_owner_id(db, current_user.id, skip, limit)
+    return song
+
+
 @router.get("/", response_model=list[schemas.Song])
 def read_songs(
     skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
 ):
-    songs = crud.get_songs(db, skip=skip, limit=limit)
+    songs = crud.get_songs(db, skip, limit)
     return songs
 
 
@@ -40,7 +51,7 @@ def read_songs(
 def read_songs_recent(
     skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
 ):
-    songs = crud.get_songs_recent(db, skip=skip, limit=limit)
+    songs = crud.get_songs_recent(db, skip, limit)
     return songs
 
 

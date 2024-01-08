@@ -28,11 +28,22 @@ def create_album(
     return crud.create_album(db, song, current_user.id)
 
 
+@router.get("/user", response_model=list[schemas.Album])
+def read_user_albums(
+    current_user: Annotated[models.User, Depends(dependencies.get_current_user)],
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(dependencies.get_db),
+):
+    album = crud.get_albums_by_owner_id(db, current_user.id, skip, limit)
+    return album
+
+
 @router.get("/", response_model=list[schemas.Album])
 def read_albums(
     skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
 ):
-    album = crud.get_albums(db, skip=skip, limit=limit)
+    album = crud.get_albums(db, skip, limit)
     return album
 
 
@@ -40,7 +51,7 @@ def read_albums(
 def read_albums_recent(
     skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
 ):
-    album = crud.get_albums_recent(db, skip=skip, limit=limit)
+    album = crud.get_albums_recent(db, skip, limit)
     return album
 
 

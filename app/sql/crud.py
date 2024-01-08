@@ -54,6 +54,16 @@ def get_songs_recent(db: Session, skip: int, limit: int):
     )
 
 
+def get_songs_by_owner_id(db: Session, owner_id: str, skip: int, limit: int):
+    return (
+        db.query(models.Song)
+        .filter(models.Song.owner_id == owner_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
 def get_song_by_id(db: Session, id: str):
     return db.query(models.Song).filter(models.Song.id == id).first()
 
@@ -141,6 +151,16 @@ def get_albums_recent(db: Session, skip: int, limit: int):
     count = get_album_count(db)
     return reversed(
         db.query(models.Album).offset(count - limit - skip).limit(limit).all()
+    )
+
+
+def get_albums_by_owner_id(db: Session, owner_id: str, skip: int, limit: int):
+    return (
+        db.query(models.Album)
+        .filter(models.Album.owner_id == owner_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
     )
 
 

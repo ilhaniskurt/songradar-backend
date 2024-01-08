@@ -82,6 +82,26 @@ def search_songs_by_artist(db: Session, artist: str, skip: int, limit: int):
     )
 
 
+def delete_song(db: Session, id: str, owner_id: int):
+    song = db.query(models.Song).filter(models.Song.id == id).first()
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Invalid song id: {id}")
+
+    if song.owner_id != owner_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Cannot delete a song that is not registered by you",
+        )
+
+    album = db.query(models.Album).filter(models.Album.id == song.album_id).first()
+
+    album.number_of_tracks -= 1
+    db.delete(song)
+    db.commit()
+    db.refresh(album)
+
+
 def create_song(db: Session, song: schemas.SongCreate, owner_id: int):
     q = db.query(models.Album).filter(models.Album.id == song.album_id).first()
 
@@ -92,22 +112,14 @@ def create_song(db: Session, song: schemas.SongCreate, owner_id: int):
 
     if q.owner_id != owner_id:
         raise HTTPException(
-            status_code=404, detail="Cannot add song to an album you do not own"
+            status_code=404,
+            detail="Cannot add a song to an album that is not registered by you",
         )
 
     q.number_of_tracks += 1
     db_song = models.Song(
         **song.model_dump(), id=str(uuid4()), owner_id=owner_id, album=q.name
     )
-    db.add(db_song)
-    db.commit()
-    db.refresh(db_song)
-    return db_song
-
-
-# Debug
-def create_song_debug(db: Session, song: schemas.SongDebug):
-    db_song = models.Song(**song.model_dump())
     db.add(db_song)
     db.commit()
     db.refresh(db_song)
@@ -156,6 +168,25 @@ def search_albums_by_artist(db: Session, artist: str, skip: int, limit: int):
     )
 
 
+def delete_album(db: Session, id: str, owner_id: int):
+    album = db.query(models.Album).filter(models.Album.id == id).first()
+
+    if not album:
+        raise HTTPException(status_code=404, detail=f"Invalid album id: {id}")
+
+    if album.owner_id != owner_id:
+        raise HTTPException(
+            status_code=404,
+            detail="Cannot delete a album that is not registered by you",
+        )
+
+    for song in get_songs_by_album_id(db, id):
+        db.delete(song)
+
+    db.delete(album)
+    db.commit()
+
+
 def create_album(db: Session, album: schemas.AlbumCreate, owner_id: int):
     db_song = models.Album(
         **album.model_dump(), id=str(uuid4()), owner_id=owner_id, number_of_tracks=0
@@ -166,7 +197,17 @@ def create_album(db: Session, album: schemas.AlbumCreate, owner_id: int):
     return db_song
 
 
-# For Debug
+# Debug
+
+
+def create_song_debug(db: Session, song: schemas.SongDebug):
+    db_song = models.Song(**song.model_dump())
+    db.add(db_song)
+    db.commit()
+    db.refresh(db_song)
+    return db_song
+
+
 def create_album_debug(db: Session, album: schemas.AlbumDebug):
     db_song = models.Album(**album.model_dump())
     db.add(db_song)

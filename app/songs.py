@@ -9,6 +9,16 @@ from app.utils import dependencies
 router = APIRouter(prefix="/songs", tags=["songs"])
 
 
+@router.delete("/{id}")
+def delete_song(
+    current_user: Annotated[models.User, Depends(dependencies.get_current_user)],
+    id: str,
+    db: Session = Depends(dependencies.get_db),
+):
+    crud.delete_song(db, id, current_user.id)
+    return True
+
+
 @router.post("/", response_model=schemas.Song)
 def create_song(
     current_user: Annotated[models.User, Depends(dependencies.get_current_user)],

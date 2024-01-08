@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from sqlalchemy.orm import Session
 
 from ..utils import security
@@ -36,8 +38,19 @@ def create_user(db: Session, user: schemas.UserCreate):
 # Song CRUD
 
 
+def get_song_count(db: Session):
+    return db.query(models.Song).count()
+
+
 def get_songs(db: Session, skip: int, limit: int):
     return db.query(models.Song).offset(skip).limit(limit).all()
+
+
+def get_songs_recent(db: Session, skip: int, limit: int):
+    count = get_song_count(db)
+    return reversed(
+        db.query(models.Song).offset(count - limit - skip).limit(limit).all()
+    )
 
 
 def get_song_by_id(db: Session, id: str):
@@ -76,15 +89,22 @@ def create_song_debug(db: Session, song: schemas.SongDebug):
     return db_song
 
 
-def get_song_count(db: Session):
-    return db.query(models.Song).count()
-
-
 # Album CRUD
+
+
+def get_album_count(db: Session):
+    return db.query(models.Album).count()
 
 
 def get_albums(db: Session, skip: int, limit: int):
     return db.query(models.Album).offset(skip).limit(limit).all()
+
+
+def get_albums_recent(db: Session, skip: int, limit: int):
+    count = get_album_count(db)
+    return reversed(
+        db.query(models.Album).offset(count - limit - skip).limit(limit).all()
+    )
 
 
 def get_album_by_id(db: Session, id: str):
@@ -111,13 +131,20 @@ def search_albums_by_artist(db: Session, artist: str, skip: int, limit: int):
     )
 
 
-def create_album_debug(db: Session, album: schemas.AlbumDebug):
-    db_song = models.Album(**album.model_dump())
+def create_album(db: Session, album: schemas.AlbumCreate, owner_id: int):
+    db_song = models.Album(
+        **album.model_dump(), id=str(uuid4()), owner_id=owner_id, number_of_tracks=0
+    )
     db.add(db_song)
     db.commit()
     db.refresh(db_song)
     return db_song
 
 
-def get_album_count(db: Session):
-    return db.query(models.Album).count()
+# For Debug
+def create_album_debug(db: Session, album: schemas.AlbumDebug):
+    db_song = models.Album(**album.model_dump())
+    db.add(db_song)
+    db.commit()
+    db.refresh(db_song)
+    return db_song

@@ -15,6 +15,14 @@ def read_songs(
     return songs
 
 
+@router.get("/", response_model=list[schemas.Song])
+def read_songs_recent(
+    skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
+):
+    songs = crud.get_songs_recent(db, skip=skip, limit=limit)
+    return songs
+
+
 @router.get("/search_name", response_model=list[schemas.Song])
 def search_song_by_name(
     name: str,

@@ -40,7 +40,7 @@ def album_count(db: Session = Depends(dependencies.get_db)):
     return crud.get_album_count(db)
 
 
-@router.get("/{album_id}", response_model=schemas.Album)
+@router.get("/find/{album_id}", response_model=schemas.Album)
 def get_album_by_id(album_id: str, db: Session = Depends(dependencies.get_db)):
     album = crud.get_album_by_id(db, album_id)
     if not album:

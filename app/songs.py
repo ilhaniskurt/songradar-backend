@@ -40,7 +40,7 @@ def song_count(db: Session = Depends(dependencies.get_db)):
     return crud.get_song_count(db)
 
 
-@router.get("/{id}", response_model=schemas.Song)
+@router.get("/find/{id}", response_model=schemas.Song)
 def get_song_by_id(id: str, db: Session = Depends(dependencies.get_db)):
     song = crud.get_song_by_id(db, id)
     if not song:

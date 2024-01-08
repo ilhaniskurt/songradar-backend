@@ -68,7 +68,7 @@ def search_songs_by_artist(db: Session, artist: str, skip: int, limit: int):
     )
 
 
-def create_song(db: Session, song: schemas.SongCreate):
+def create_song_debug(db: Session, song: schemas.SongDebug):
     db_song = models.Song(**song.model_dump())
     db.add(db_song)
     db.commit()
@@ -111,7 +111,7 @@ def search_albums_by_artist(db: Session, artist: str, skip: int, limit: int):
     )
 
 
-def create_album(db: Session, album: schemas.AlbumCreate):
+def create_album_debug(db: Session, album: schemas.AlbumDebug):
     db_song = models.Album(**album.model_dump())
     db.add(db_song)
     db.commit()

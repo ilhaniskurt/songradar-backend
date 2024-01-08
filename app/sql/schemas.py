@@ -75,7 +75,7 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class SongBase(BaseModel):
+class SongDebug(BaseModel):
     id: str
     name: str
     album: str
@@ -105,6 +105,10 @@ class SongBase(BaseModel):
     owner_id: int = 0
 
 
+class SongBase(BaseModel):
+    pass
+
+
 class SongCreate(SongBase):
     pass
 
@@ -113,7 +117,7 @@ class Song(SongBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class AlbumBase(BaseModel):
+class AlbumDebug(BaseModel):
     id: str
     name: str
     artists: str
@@ -138,6 +142,10 @@ class AlbumBase(BaseModel):
     day: int
 
     owner_id: int = 0
+
+
+class AlbumBase(BaseModel):
+    pass
 
 
 class AlbumCreate(AlbumBase):

@@ -36,16 +36,14 @@ def read_user_by_id(user_id: int, db: Session = Depends(dependencies.get_db)):
 # Album Debug
 
 
-@router.post("/albums", response_model=schemas.AlbumBase)
-def create_album(
-    album: schemas.AlbumCreate, db: Session = Depends(dependencies.get_db)
-):
-    return crud.create_album(db, album)
+@router.post("/albums", response_model=schemas.AlbumDebug)
+def create_album(album: schemas.AlbumDebug, db: Session = Depends(dependencies.get_db)):
+    return crud.create_album_debug(db, album)
 
 
 # Song Debug
 
 
-@router.post("/songs", response_model=schemas.SongBase)
-def create_song(song: schemas.SongCreate, db: Session = Depends(dependencies.get_db)):
-    return crud.create_song(db, song)
+@router.post("/songs", response_model=schemas.SongDebug)
+def create_song(song: schemas.SongDebug, db: Session = Depends(dependencies.get_db)):
+    return crud.create_song_debug(db, song)

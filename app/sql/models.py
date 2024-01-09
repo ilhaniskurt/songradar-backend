@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, Float, Integer, String
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, Table
 from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -75,3 +76,24 @@ class Album(Base):
 
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
+
+
+# TODO ondelete cascade
+playlist_song_association = Table(
+    "playlist_song",
+    Base.metadata,
+    Column("playlist_id", Integer, ForeignKey("playlists.id")),
+    Column("song_id", String, ForeignKey("songs.id")),
+)
+
+
+class Playlist(Base):
+    __tablename__ = "playlists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    user = relationship("User")
+    songs = relationship("Song", secondary=playlist_song_association)

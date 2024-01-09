@@ -100,7 +100,7 @@ def delete_song(db: Session, id: str, owner_id: int):
 
     if song.owner_id != owner_id:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail="Cannot delete a song that is not registered by you",
         )
 
@@ -122,7 +122,7 @@ def create_song(db: Session, song: schemas.SongCreate, owner_id: int):
 
     if q.owner_id != owner_id:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail="Cannot add a song to an album that is not registered by you",
         )
 
@@ -196,7 +196,7 @@ def delete_album(db: Session, id: str, owner_id: int):
 
     if album.owner_id != owner_id:
         raise HTTPException(
-            status_code=404,
+            status_code=400,
             detail="Cannot delete a album that is not registered by you",
         )
 
@@ -215,6 +215,127 @@ def create_album(db: Session, album: schemas.AlbumCreate, owner_id: int):
     db.commit()
     db.refresh(db_song)
     return db_song
+
+
+# Playlist CRUD
+
+
+def create_playlist(db: Session, playlist: schemas.PlaylistCreate, owner_id: int):
+    new_playlist = models.Playlist(**playlist.model_dump(), owner_id=owner_id)
+    db.add(new_playlist)
+    db.commit()
+    db.refresh(new_playlist)
+    return new_playlist
+
+
+def get_playlist_by_id(db: Session, id: int):
+    return db.query(models.Playlist).filter(models.Playlist.id == id).first()
+
+
+def get_playlists_by_owner_id(db: Session, owner_id: int, skip: int, limit: int):
+    return (
+        db.query(models.Playlist)
+        .filter(models.Playlist.owner_id == owner_id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def update_playlist_name(db: Session, id: int, owner_id: int, new_name: str):
+    playlist = db.query(models.Playlist).filter(models.Playlist.id == id).first()
+    if not playlist:
+        raise HTTPException(status_code=404, detail=f"Invalid playlist id: {id}")
+
+    if playlist.owner_id != owner_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot change the name of a playlist that does not belong to you",
+        )
+
+    playlist.name = new_name
+    db.commit()
+    db.refresh(playlist)
+    return playlist
+
+
+def delete_playlist(db: Session, id: int, owner_id: int):
+    playlist = db.query(models.Playlist).filter(models.Playlist.id == id).first()
+
+    if not playlist:
+        raise HTTPException(status_code=404, detail=f"Invalid playlist id: {id}")
+
+    if playlist.owner_id != owner_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete a playlist that does not belong to you",
+        )
+
+    db.delete(playlist)
+    db.commit()
+    return True
+
+
+def add_song_to_playlist(db: Session, id: int, song_id: str, owner_id: str):
+    playlist = db.query(models.Playlist).filter(models.Playlist.id == id).first()
+
+    if not playlist:
+        raise HTTPException(status_code=404, detail=f"Invalid playlist id: {id}")
+
+    if playlist.owner_id != owner_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot add a song to a playlist that does not belong to you",
+        )
+
+    song = db.query(models.Song).filter(models.Song.id == song_id).first()
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Invalid song id: {song_id}")
+
+    if song in playlist.songs:
+        raise HTTPException(
+            status_code=400,
+            detail="Song is already in the playlist",
+        )
+
+    playlist.songs.append(song)
+    db.commit()
+    db.refresh(playlist)
+    return playlist
+
+
+def remove_song_from_playlist(db: Session, id: int, song_id: str, owner_id: int):
+    playlist = db.query(models.Playlist).filter(models.Playlist.id == id).first()
+
+    if not playlist:
+        raise HTTPException(status_code=404, detail=f"Invalid playlist id: {id}")
+
+    if playlist.owner_id != owner_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot remove a song from a playlist that does not belong to you",
+        )
+
+    song = db.query(models.Song).filter(models.Song.id == song_id).first()
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Invalid song id: {song_id}")
+
+    if song not in playlist.songs:
+        raise HTTPException(
+            status_code=400,
+            detail="Song is not in the playlist",
+        )
+
+    playlist.songs.remove(song)
+    db.commit()
+    db.refresh(playlist)
+    return playlist
+
+
+def get_playlists(db: Session, skip: int, limit: int):
+    return db.query(models.Playlist).offset(skip).limit(limit).all()
 
 
 # Debug

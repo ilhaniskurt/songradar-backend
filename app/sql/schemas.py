@@ -5,6 +5,8 @@ from email_validator import EmailNotValidError, validate_email
 from fastapi import HTTPException
 from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator, validator
 
+# User Schemas
+
 
 class UserBase(BaseModel):
     username: str
@@ -76,6 +78,9 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+# Song Schemas
+
+
 class SongBase(BaseModel):
     name: str
     album_id: str
@@ -132,6 +137,9 @@ class Song(SongBase):
     time_signature: int | None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# Album Schemas
 
 
 class AlbumBase(BaseModel):
@@ -194,6 +202,25 @@ class Album(AlbumBase):
 
 class AlbumPopulated(Album):
     tracks: list[Song]
+
+
+# Playlist Schemas
+
+
+class PlaylistBase(BaseModel):
+    name: str
+
+
+class PlaylistCreate(PlaylistBase):
+    pass
+
+
+class Playlist(PlaylistBase):
+    id: int
+    owner_id: int
+    songs: list[Song] | None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Debug

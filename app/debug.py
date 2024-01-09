@@ -47,3 +47,14 @@ def create_album(album: schemas.AlbumDebug, db: Session = Depends(dependencies.g
 @router.post("/songs", response_model=schemas.SongDebug)
 def create_song(song: schemas.SongDebug, db: Session = Depends(dependencies.get_db)):
     return crud.create_song_debug(db, song)
+
+
+# Playlist Debug
+
+
+@router.get("/playlists", response_model=list[schemas.Playlist])
+def read_playlists(
+    skip: int = 0, limit: int = 10, db: Session = Depends(dependencies.get_db)
+):
+    album = crud.get_playlists(db, skip, limit)
+    return album

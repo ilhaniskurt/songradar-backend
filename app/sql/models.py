@@ -93,7 +93,6 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
 
-    owner_id = Column(Integer, ForeignKey("users.id"))
+    owner_id = Column(Integer, index=True)
 
-    user = relationship("User")
     songs = relationship("Song", secondary=playlist_song_association)

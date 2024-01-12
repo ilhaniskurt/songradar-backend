@@ -3,7 +3,7 @@ from datetime import datetime
 
 from email_validator import EmailNotValidError, validate_email
 from fastapi import HTTPException
-from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator, validator
+from pydantic import BaseModel, ConfigDict, ValidationInfo, field_validator
 
 # User Schemas
 
@@ -91,10 +91,10 @@ class SongBase(BaseModel):
 
 
 class SongCreate(SongBase):
-    @validator("day")
+    @field_validator("day")
     def validate_date(cls, v, values):
-        year = values["year"]
-        month = values["month"]
+        year = values.data["year"]
+        month = values.data["month"]
         day = v
         try:
             date = datetime(year, month, day)
@@ -151,10 +151,10 @@ class AlbumBase(BaseModel):
 
 
 class AlbumCreate(AlbumBase):
-    @validator("day")
+    @field_validator("day")
     def validate_date(cls, v, values):
-        year = values["year"]
-        month = values["month"]
+        year = values.data["year"]
+        month = values.data["month"]
         day = v
         try:
             date = datetime(year, month, day)

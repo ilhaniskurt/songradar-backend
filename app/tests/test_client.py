@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -31,3 +33,35 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
+
+
+@lru_cache
+def create_user(username: str, password: str, email: str):
+    response = client.post(
+        "/auth/sign_up",
+        headers={"accept": "application/json", "Content-Type": "application/json"},
+        json={"username": username, "password": password, "email": email},
+    )
+    if response.status_code != 200:
+        raise Exception("User creating failed!")
+
+
+@lru_cache
+def get_auth_header(username: str, password: str, email: str):
+    create_user(username, password, email)
+    response = client.post(
+        "/auth/sign_in",
+        headers={"accept": "application/json"},
+        data={"username": username, "password": password},
+    )
+    data = response.json()
+    header = {
+        "Authorization": "Bearer " + data["access_token"],
+        "accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    return header
+
+
+user_1 = get_auth_header("ilanya", "Ilhan.1234", "ilhan@gmail.com")
+user_2 = get_auth_header("yavuzil", "Yavuz.1234", "yavuz@gmail.com")

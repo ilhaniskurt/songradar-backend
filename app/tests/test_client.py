@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from fastapi.testclient import TestClient
+from pytest import fixture
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -35,7 +36,6 @@ app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
-@lru_cache
 def create_user(username: str, password: str, email: str):
     response = client.post(
         "/auth/sign_up",
@@ -63,5 +63,9 @@ def get_auth_header(username: str, password: str, email: str):
     return header
 
 
-user_1 = get_auth_header("ilanya", "Ilhan.1234", "ilhan@gmail.com")
-user_2 = get_auth_header("yavuzil", "Yavuz.1234", "yavuz@gmail.com")
+@fixture(scope="session")
+def auth_headers():
+    user_1 = get_auth_header("ilanya", "Ilhan.1234", "ilhan@gmail.com")
+    user_2 = get_auth_header("yavuzil", "Yavuz.1234", "yavuz@gmail.com")
+
+    yield [user_1, user_2]

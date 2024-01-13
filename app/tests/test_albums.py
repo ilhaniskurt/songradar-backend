@@ -1,4 +1,4 @@
-from .test_client import client, user_1, user_2
+from .test_client import auth_headers, client
 
 invalid_day = [
     {
@@ -83,31 +83,31 @@ def test_create_without_auth():
     assert response.status_code == 401
 
 
-def test_create_with_invalid_day():
+def test_create_with_invalid_day(auth_headers: auth_headers):
     for album in invalid_day:
         response = client.post(
             "/albums",
-            headers=user_1,
+            headers=auth_headers[0],
             json=album,
         )
         assert response.status_code == 400
 
 
-def test_create_with_invalid_month():
+def test_create_with_invalid_month(auth_headers: auth_headers):
     for album in invalid_month:
         response = client.post(
             "/albums",
-            headers=user_1,
+            headers=auth_headers[0],
             json=album,
         )
         assert response.status_code == 400
 
 
-def test_create_with_invalid_year():
+def test_create_with_invalid_year(auth_headers: auth_headers):
     for album in invalid_year:
         response = client.post(
             "/albums",
-            headers=user_1,
+            headers=auth_headers[0],
             json=album,
         )
         assert response.status_code == 400
@@ -120,11 +120,11 @@ def test_read_empty():
     assert response.json() == []
 
 
-def test_create():
+def test_create(auth_headers: auth_headers):
     for album in valid:
         response = client.post(
             "/albums",
-            headers=user_1,
+            headers=auth_headers[0],
             json=album,
         )
         assert response.status_code == 200
@@ -157,8 +157,15 @@ def test_user_without_auth():
     assert response.status_code == 401
 
 
-def test_user():
-    response = client.get("/albums/user", headers=user_1)
+def test_user_empty(auth_headers: auth_headers):
+    response = client.get("/albums/user", headers=auth_headers[1])
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_user(auth_headers: auth_headers):
+    response = client.get("/albums/user", headers=auth_headers[0])
 
     assert response.status_code == 200
     data = response.json()
@@ -260,20 +267,20 @@ def test_delete_without_auth():
     assert response.status_code == 401
 
 
-def test_delete_wrong_auth():
-    response = client.delete("/albums/" + id, headers=user_2)
+def test_delete_wrong_auth(auth_headers: auth_headers):
+    response = client.delete("/albums/" + id, headers=auth_headers[1])
 
     assert response.status_code == 400
 
 
-def test_delete_invalid():
-    response = client.delete("/albums/NULL", headers=user_1)
+def test_delete_invalid(auth_headers: auth_headers):
+    response = client.delete("/albums/NULL", headers=auth_headers[0])
 
     assert response.status_code == 404
 
 
-def test_delete():
-    response = client.delete("/albums/" + id, headers=user_1)
+def test_delete(auth_headers: auth_headers):
+    response = client.delete("/albums/" + id, headers=auth_headers[0])
 
     assert response.status_code == 200
 

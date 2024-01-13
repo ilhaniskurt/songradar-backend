@@ -96,3 +96,19 @@ class Playlist(Base):
     owner_id = Column(Integer, index=True)
 
     songs = relationship("Song", secondary=playlist_song_association)
+
+
+starred_song_association = Table(
+    "starred_song",
+    Base.metadata,
+    Column("starred_id", Integer, ForeignKey("starred.id")),
+    Column("song_id", String, ForeignKey("songs.id")),
+)
+
+
+class Starred(Base):
+    __tablename__ = "starred"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    songs = relationship("Song", secondary=starred_song_association)

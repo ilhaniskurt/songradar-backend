@@ -30,7 +30,9 @@ def create_user(db: Session, user: schemas.UserCreate):
         **user.model_dump(exclude="password"),
         hashed_password=security.get_password_hash(user.password),
     )
+    db_starred = models.Starred(id=db_user.id)
     db.add(db_user)
+    db.add(db_starred)
     db.commit()
     db.refresh(db_user)
     return db_user
@@ -336,6 +338,59 @@ def remove_song_from_playlist(db: Session, id: int, song_id: str, owner_id: int)
 
 def get_playlists(db: Session, skip: int, limit: int):
     return db.query(models.Playlist).offset(skip).limit(limit).all()
+
+
+# Starred Debug
+
+
+def star_song(db: Session, id: str, owner_id: str):
+    starred = db.query(models.Starred).filter(models.Starred.id == owner_id).first()
+
+    if not starred:
+        raise HTTPException(status_code=404, detail=f"Invalid user id: {owner_id}")
+
+    song = db.query(models.Song).filter(models.Song.id == id).first()
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Invalid song id: {id}")
+
+    if song in starred.songs:
+        raise HTTPException(
+            status_code=400,
+            detail="Song is already starred",
+        )
+
+    starred.songs.append(song)
+    db.commit()
+    db.refresh(starred)
+    return starred
+
+
+def unstar_song(db: Session, id: str, owner_id: int):
+    starred = db.query(models.Starred).filter(models.Starred.id == owner_id).first()
+
+    if not starred:
+        raise HTTPException(status_code=404, detail=f"Invalid user id: {owner_id}")
+
+    song = db.query(models.Song).filter(models.Song.id == id).first()
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Invalid song id: {id}")
+
+    if song not in starred.songs:
+        raise HTTPException(
+            status_code=400,
+            detail="Song is not starred",
+        )
+
+    starred.songs.remove(song)
+    db.commit()
+    db.refresh(starred)
+    return starred
+
+
+def get_starred(db: Session, owner_id: int):
+    return db.query(models.Starred).filter(models.Starred.id == owner_id).first()
 
 
 # Debug

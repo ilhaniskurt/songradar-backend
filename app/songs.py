@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -86,3 +87,14 @@ def get_song_by_id(id: str, db: Session = Depends(dependencies.get_db)):
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
     return song
+
+
+@router.get("/cover/{id}")
+def get_track_cover(id: str):
+    if "-" in id:
+        raise HTTPException(status_code=404, detail="Track cover not found")
+    response = requests.get(
+        "https://embed.spotify.com/oembed?url=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F"
+        + id
+    )
+    return response.json()["thumbnail_url"]

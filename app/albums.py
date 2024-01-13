@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -80,12 +81,21 @@ def album_count(db: Session = Depends(dependencies.get_db)):
     return crud.get_album_count(db)
 
 
-@router.get("/find/{album_id}", response_model=schemas.AlbumPopulated)
-def get_album_with_tracks_by_id(
-    album_id: str, db: Session = Depends(dependencies.get_db)
-):
-    album = crud.get_album_by_id(db, album_id)
+@router.get("/find/{id}", response_model=schemas.AlbumPopulated)
+def get_album_with_tracks_by_id(id: str, db: Session = Depends(dependencies.get_db)):
+    album = crud.get_album_by_id(db, id)
     if not album:
         raise HTTPException(status_code=404, detail="Album not found")
-    tracks = crud.get_songs_by_album_id(db, album_id)
+    tracks = crud.get_songs_by_album_id(db, id)
     return schemas.AlbumPopulated(**album.to_dict(), tracks=tracks)
+
+
+@router.get("/cover/{id}")
+def get_album_cover(id: str):
+    if "-" in id:
+        raise HTTPException(status_code=404, detail="Album cover not found")
+    response = requests.get(
+        "https://embed.spotify.com/oembed?url=https%3A%2F%2Fopen.spotify.com%2Falbum%2F"
+        + id
+    )
+    return response.json()["thumbnail_url"]

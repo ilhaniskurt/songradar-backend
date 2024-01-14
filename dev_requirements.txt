@@ -7,5 +7,7 @@ email-validator
 fastapi
 uvicorn[standart]
 sqlalchemy
+pandas
+scikit-learn
 httpx
 pytest

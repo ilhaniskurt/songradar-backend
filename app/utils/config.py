@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     sqlalchemy_database_url: str = "sqlite:///./sql.db"
+    songfiles: list = ["songs_0.csv", "songs_1.csv", "songs_2.csv", "songs_3.csv"]
 
 
 settings = Settings()

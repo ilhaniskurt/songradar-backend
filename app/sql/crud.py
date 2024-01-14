@@ -49,6 +49,10 @@ def get_songs(db: Session, skip: int, limit: int):
     return db.query(models.Song).offset(skip).limit(limit).all()
 
 
+def get_all_defualt_songs(db: Session):
+    return db.query(models.Song).filter(models.Song.owner_id == 0).all()
+
+
 def get_songs_recent(db: Session, skip: int, limit: int):
     count = get_song_count(db)
     return reversed(

@@ -85,7 +85,7 @@ def song_count(db: Session = Depends(dependencies.get_db)):
 def get_song_by_id(id: str, db: Session = Depends(dependencies.get_db)):
     song = crud.get_song_by_id(db, id)
     if not song:
-        raise HTTPException(status_code=404, detail="Song not found")
+        raise HTTPException(status_code=404, detail="Invalid song id: " + id)
     return song
 
 

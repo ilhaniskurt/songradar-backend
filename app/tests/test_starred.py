@@ -105,6 +105,32 @@ def test_read(auth_headers: auth_headers):
     assert data["day"] == 25
 
 
+def test_is_song_starred_false(auth_headers: auth_headers, ids: ids):
+    response = client.get("/starred/" + ids[1], headers=auth_headers[0])
+
+    assert response.status_code == 200
+    assert response.json() is False
+
+
+def test_is_song_starred_true(auth_headers: auth_headers, ids: ids):
+    response = client.get("/starred/" + ids[0], headers=auth_headers[0])
+
+    assert response.status_code == 200
+    assert response.json() is True
+
+
+def test_is_song_starred_invalid(auth_headers: auth_headers):
+    response = client.get("/starred/NULL", headers=auth_headers[0])
+
+    assert response.status_code == 404
+
+
+def test_is_song_starred_wrong_auth(auth_headers: auth_headers):
+    response = client.get("/starred/NULL", headers=auth_headers[1])
+
+    assert response.status_code == 404
+
+
 def test_delete_song_without_auth():
     response = client.delete("/starred/NULL")
 

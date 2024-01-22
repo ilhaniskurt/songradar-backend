@@ -347,6 +347,20 @@ def get_playlists(db: Session, skip: int, limit: int):
 # Starred Debug
 
 
+def is_starred(db: Session, id: str, owner_id: str):
+    starred = db.query(models.Starred).filter(models.Starred.id == owner_id).first()
+
+    if not starred:
+        raise HTTPException(status_code=404, detail=f"Invalid user id: {owner_id}")
+
+    song = db.query(models.Song).filter(models.Song.id == id).first()
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Invalid song id: {id}")
+
+    return song in starred.songs
+
+
 def star_song(db: Session, id: str, owner_id: str):
     starred = db.query(models.Starred).filter(models.Starred.id == owner_id).first()
 

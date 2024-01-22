@@ -33,3 +33,12 @@ def read_starred(
     db: Session = Depends(dependencies.get_db),
 ):
     return crud.get_starred(db, current_user.id).songs
+
+
+@router.get("/{id}")
+def is_song_starred(
+    current_user: Annotated[models.User, Depends(dependencies.get_current_user)],
+    id: str,
+    db: Session = Depends(dependencies.get_db),
+):
+    return crud.is_starred(db, id, current_user.id)

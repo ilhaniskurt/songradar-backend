@@ -38,6 +38,101 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
+# Friend CRUD
+
+
+def send_friend_request(db: Session, requester_id: int, requestee_id: int):
+    """Sends a friend request from requester to requestee."""
+    requestee = get_user(db, requestee_id)
+    if not requestee:
+        raise HTTPException(
+            status_code=404, detail=f"Invalid requestee id: {requestee_id}"
+        )
+
+    requester = get_user(db, requester_id)
+    if requestee in requester.friends:
+        raise HTTPException(status_code=400, detail="Already friends with this user")
+
+    if (
+        db.query(models.FriendRequest)
+        .filter(
+            models.FriendRequest.requester_id == requester_id,
+            models.FriendRequest.requestee_id == requestee_id,
+            models.FriendRequest.status == "pending",
+        )
+        .all()
+    ):
+        raise HTTPException(
+            status_code=400, detail="There is already a pending request for this user"
+        )
+
+    new_request = models.FriendRequest(
+        requester_id=requester_id,
+        requester_name=requester.username,
+        requestee_id=requestee_id,
+        requestee_name=requestee.username,
+    )
+    db.add(new_request)
+    db.commit()
+    return new_request
+
+
+def get_friend_requests(db: Session, user_id: int):
+    """Retrieves all friend requests for a given user."""
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user:
+        return user.received_requests.all()
+    return []
+
+
+def get_pending_friend_requests(db: Session, user_id: int):
+    """Retrieves all pending friend requests for a given user."""
+    user = db.query(models.User).filter_by(id=user_id).first()
+    if user:
+        pending_requests = (
+            db.query(models.FriendRequest)
+            .filter(
+                models.FriendRequest.requestee_id == user_id,
+                models.FriendRequest.status == "pending",
+            )
+            .all()
+        )
+        return pending_requests
+    return []
+
+
+def accept_friend_request(db: Session, request_id: int, user_id: int):
+    """Accepts a friend request."""
+    request = (
+        db.query(models.FriendRequest)
+        .filter_by(id=request_id, requestee_id=user_id, status="pending")
+        .first()
+    )
+    if request:
+        request.status = "accepted"
+        # Add each other as friends
+        user = db.query(models.User).filter_by(id=request.requester_id).first()
+        friend = db.query(models.User).filter_by(id=request.requestee_id).first()
+        if user and friend:
+            user.friends.append(friend)
+            friend.friends.append(user)
+        db.commit()
+        return request
+
+
+def deny_friend_request(db: Session, request_id: int, user_id: int):
+    """Denies a friend request."""
+    request = (
+        db.query(models.FriendRequest)
+        .filter_by(id=request_id, requestee_id=user_id, status="pending")
+        .first()
+    )
+    if request:
+        request.status = "rejected"
+        db.commit()
+        return request
+
+
 # Song CRUD
 
 

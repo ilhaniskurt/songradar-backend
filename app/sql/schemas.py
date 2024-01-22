@@ -78,6 +78,20 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+# Friend Request Schema
+
+
+class FriendRequest(BaseModel):
+    id: int
+    requester_id: int
+    requester_name: str
+    requestee_id: int
+    requestee_name: str
+    status: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # Song Schemas
 
 

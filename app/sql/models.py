@@ -4,6 +4,24 @@ from sqlalchemy.orm import relationship
 
 from .database import Base
 
+friends_association = Table(
+    "friends_association",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id")),
+    Column("friend_id", Integer, ForeignKey("users.id")),
+)
+
+
+# Association table for friend requests
+class FriendRequest(Base):
+    __tablename__ = "friend_requests"
+    id = Column(Integer, primary_key=True)
+    requester_id = Column(Integer, ForeignKey("users.id"))
+    requester_name = Column(String)
+    requestee_id = Column(Integer, ForeignKey("users.id"))
+    requestee_name = Column(String)
+    status = Column(String, default="pending")
+
 
 class User(Base):
     __tablename__ = "users"
@@ -12,6 +30,28 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+
+    # Relationship for friends
+    friends = relationship(
+        "User",
+        secondary=friends_association,
+        primaryjoin=id == friends_association.c.user_id,
+        secondaryjoin=id == friends_association.c.friend_id,
+    )
+
+    # Relationship for friend requests
+    sent_requests = relationship(
+        "FriendRequest",
+        foreign_keys="FriendRequest.requester_id",
+        backref="requester",
+        lazy="dynamic",
+    )
+    received_requests = relationship(
+        "FriendRequest",
+        foreign_keys="FriendRequest.requestee_id",
+        backref="requestee",
+        lazy="dynamic",
+    )
 
 
 class Song(Base):
